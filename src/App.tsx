@@ -9,8 +9,18 @@ import DashboardPage from "./pages/admin/DashboardPage"
 import UsersPage from "./pages/admin/UsersPage"
 import LoginPage from "./pages/auth/LoginPage"
 import SignUpPage from "./pages/auth/SignUpPage"
+import { useEffect } from "react"
+import { decodeAndStoreUserFromToken } from "./redux/decode"
+import { useAppDispatch } from "./helper"
 
 function App() {
+  const dispatch = useAppDispatch()
+   useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      decodeAndStoreUserFromToken(token, dispatch)
+    }
+  }, [dispatch])
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Router>

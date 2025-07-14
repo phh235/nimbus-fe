@@ -22,7 +22,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="border-b min-h-13">
+      <SidebarHeader className="border-b min-h-14">
         <div className="flex items-center gap-2">
           <img src="/vite.svg" alt="logo" className="size-8" />
           <span className="font-semibold group-data-[collapsible=icon]:hidden">Nimbus</span>

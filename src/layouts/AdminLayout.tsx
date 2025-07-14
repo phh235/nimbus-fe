@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Navigate, Outlet, useNavigate } from "react-router-dom"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import {
   Breadcrumb,
@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ModeToggle } from "@/components/theme/mode-toggle"
 import { NavUser } from "@/components/sidebar/nav-user"
+import { useAppSelector } from "@/helper"
 
 const data = {
   user: {
@@ -23,10 +24,13 @@ const data = {
 
 const AdminLayout = () => {
   const navigate = useNavigate()
-
+  const user = useAppSelector((state) => state.auth.user)
   const handleLogout = () => {
     navigate("/login")
   }
+if (!user || !(user.roles.includes("ROLE_ADMIN") || user.roles.includes("ROLE_QUANLY"))) {
+  return <Navigate to="/" replace />
+}
   return (
     <>
       <AppSidebar />

@@ -4,8 +4,10 @@ import { NavMenu } from "../components/navbar/nav-menu"
 import { NavigationSheet } from "../components/navbar/navigation-sheet"
 import { ModeToggle } from "../components/theme/mode-toggle"
 import { Button } from "@/components/ui/button"
+import { useAppSelector } from "@/helper"
 
 const UserLayout = () => {
+  const user = useAppSelector((state) => state.auth.user as any)
   return (
     <div className="min-h-screen bg-muted">
       <nav className="h-16 bg-background border-b">
@@ -18,12 +20,19 @@ const UserLayout = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" asChild>
-              <Link to="/login">Đăng nhập</Link>
-            </Button>
-            <Button variant="default" asChild>
-              <Link to="/sign-up">Đăng ký</Link>
-            </Button>
+            {!user ? (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/login">Đăng nhập</Link>
+                </Button>
+                <Button variant="default" asChild>
+                  <Link to="/sign-up">Đăng ký</Link>
+                </Button>
+              </>
+            ) : (
+              <span>{user?.hoten}</span>
+            )}
+
             <ModeToggle />
 
             {/* Mobile Menu */}

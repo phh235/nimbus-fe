@@ -2,27 +2,29 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { toastError } from "@/helper/toast"
 import { useAppDispatch } from "../../helper/index"
 import { authActions } from "@/redux/authSlice"
 import { loginUser } from "@/api/authApi"
 import { Eye, EyeOff, Loader } from "lucide-react"
+import { decodeAndStoreUserFromToken } from "@/redux/decode"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [state, setState] = useState({
     email: "",
-    password: "",
+    matKhau: "",
   })
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!state.email || !state.password) {
+    if (!state.email || !state.matKhau) {
       toastError("Vui lòng nhập đầy đủ email và mật khẩu!")
       return
     }
@@ -32,12 +34,29 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     try {
       const response = await loginUser({
         email: state.email,
-        password: state.password,
+        matKhau: state.matKhau,
       })
 
-      if (response.status === 200) {
+      if (response.success === true) {
         dispatch(authActions.login(response.data || response))
-        setState({ email: "", password: "" })
+        const token = localStorage.getItem("token")
+        if (token) {
+          const payload = decodeAndStoreUserFromToken(token, dispatch)
+          if (payload) {
+            const roles = payload.roles
+
+            // 👉 Điều hướng theo role
+            if (roles.includes("ROLE_ADMIN") || roles.includes("ROLE_QUANLY")) {
+              navigate("/dashboard")
+            } else if (roles.includes("ROLE_BENHNHAN")) {
+              navigate("/") // Default
+            }
+          }
+        }
+        setState({ email: "", matKhau: "" })
+        // setTimeout(() => {
+        //   navigate("/")
+        // }, 1200)
       }
     } catch (error) {
       console.error("Login error:", error)
@@ -81,8 +100,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              value={state.password}
-              onChange={(e) => setState({ ...state, password: e.target.value })}
+              value={state.matKhau}
+              onChange={(e) => setState({ ...state, matKhau: e.target.value })}
               required
             />
             <button
@@ -92,11 +111,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
               tabIndex={0}
               aria-label={showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
             >
-              {showPassword ? (
-                <EyeOff className="size-4" />
-              ) : (
-                <Eye className="size-4" />
-              )}
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
         </div>
